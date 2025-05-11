@@ -423,7 +423,7 @@ class ClientAPI {
     if (settings.AUTO_REGISTER_OPEN_ID) {
       await registerOpenID(this.itemData.privateKey, this.provider);
     }
-    await swapTokens(this.itemData.privateKey, this.provider);
+    if (settings.AUTO_SWAP) await swapTokens(this.itemData.privateKey, this.provider);
   }
 
   async handleConnectRPC() {
