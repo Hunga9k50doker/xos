@@ -6,7 +6,7 @@ const { HttpsProxyAgent } = require("https-proxy-agent");
 const readline = require("readline");
 const user_agents = require("./config/userAgents");
 const settings = require("./config/config.js");
-const { sleep, loadData, getRandomNumber, saveToken, isTokenExpired, saveJson, getRandomElement } = require("./utils/utils.js");
+const { sleep, loadData, getRandomNumber, saveToken, isTokenExpired, saveJson, getRandomElement, parseProxyUrl } = require("./utils/utils.js");
 const { Worker, isMainThread, parentPort, workerData } = require("worker_threads");
 const { checkBaseUrl } = require("./checkAPI");
 const headers = require("./core/header.js");
@@ -269,10 +269,24 @@ class ClientAPI {
 
   async faucet() {
     this.log(`Solving captcha...`);
-    const captchaToken = await solveCaptcha();
+    let captchaToken = null;
+    if (settings.TYPE_CAPTCHA == "monstercaptcha") {
+      const proxyData = parseProxyUrl(this.proxy);
+      if (!proxyData) return { success: false };
+      captchaToken = await solveCaptcha(
+        {
+          websiteURL: settings.CAPTCHA_URL,
+          websiteKey: settings.WEBSITE_KEY,
+        },
+        proxyData
+      );
+    } else {
+      captchaToken = await solveCaptcha();
+    }
     if (!captchaToken) {
       return { success: false };
     }
+
     return this.makeRequest(
       `https://faucet.x.ink/api/sendToken`,
       "post",
@@ -412,6 +426,30 @@ class ClientAPI {
     await swapTokens(this.itemData.privateKey, this.provider);
   }
 
+  async handleConnectRPC() {
+    const agent = new HttpsProxyAgent(this.proxy);
+    let retries = 3;
+    for (let i = 1; i <= retries; i++) {
+      try {
+        const res = new ethers.JsonRpcProvider(settings.RPC_URL, {
+          name: "XOS",
+          chainId: Number(settings.CHAIN_ID),
+          agent: agent,
+        });
+        this.provider = res;
+        this.log(`[${i}/${retries}] Connect RPC successs!`, "success");
+        return true;
+      } catch (error) {
+        this.log(`[${i}/${retries}] Can't connect RPC: ${error.message}`, "warning");
+        if (i > retries) {
+          return null;
+        } else {
+          this.log(`[${i}/${retries}] Trying reconnect RPC`, "info");
+          await sleep(1);
+        }
+      }
+    }
+  }
   async runAccount() {
     const accountIndex = this.accountIndex;
     this.session_name = this.itemData.address;
@@ -421,12 +459,9 @@ class ClientAPI {
     if (settings.USE_PROXY) {
       try {
         this.proxyIP = await this.checkProxyIP();
-        const agent = new HttpsProxyAgent(this.proxy);
-        this.provider = new ethers.JsonRpcProvider(settings.RPC_URL, {
-          name: "XOS",
-          chainId: settings.CHAIN_ID,
-          agent: agent,
-        });
+        if (settings.USE_PROXY_FOR_RPC) {
+          await this.handleConnectRPC();
+        }
       } catch (error) {
         this.log(`Cannot check proxy IP ${this.proxy}: ${error.message}`, "warning");
         return;

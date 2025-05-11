@@ -21,7 +21,7 @@ const settings = {
   ENABLE_ADVANCED_MERGE: process.env.ENABLE_ADVANCED_MERGE ? process.env.ENABLE_ADVANCED_MERGE.toLowerCase() === "true" : false,
   ENABLE_DEBUG: process.env.ENABLE_DEBUG ? process.env.ENABLE_DEBUG.toLowerCase() === "true" : false,
 
-  AUTO_UPGRADE_SPEED: process.env.AUTO_UPGRADE_SPEED ? process.env.AUTO_UPGRADE_SPEED.toLowerCase() === "true" : false,
+  USE_PROXY_FOR_RPC: process.env.USE_PROXY_FOR_RPC ? process.env.USE_PROXY_FOR_RPC.toLowerCase() === "true" : false,
   AUTO_BUY_PET: process.env.AUTO_BUY_PET ? process.env.AUTO_BUY_PET.toLowerCase() === "true" : false,
   AUTO_SELL_PET: process.env.AUTO_SELL_PET ? process.env.AUTO_SELL_PET.toLowerCase() === "true" : false,
 

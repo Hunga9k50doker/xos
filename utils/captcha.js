@@ -122,7 +122,7 @@ const solveAntiCaptcha = async (params) => {
   }
 };
 
-const solveMonsterCaptcha = async (params) => {
+const solveMonsterCaptcha = async (params, proxyData) => {
   let retries = 5;
   try {
     // Step 1: Create a CAPTCHA task
@@ -131,9 +131,15 @@ const solveMonsterCaptcha = async (params) => {
       {
         clientKey: config.API_KEY_CAPMONSTER,
         task: {
-          type: "RecaptchaV2TaskProxyless",
+          type: "RecaptchaV2Task",
           websiteURL: params.websiteURL,
           websiteKey: params.websiteKey,
+          proxyType: proxyData.protocol,
+          proxyAddress: proxyData.ip,
+          proxyPort: proxyData.port,
+          proxyLogin: proxyData.username,
+          proxyPassword: proxyData.password,
+          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
         },
       },
       {
@@ -187,14 +193,15 @@ async function solveCaptcha(
   params = {
     websiteURL: config.CAPTCHA_URL,
     websiteKey: config.WEBSITE_KEY,
-  }
+  },
+  proxyData
 ) {
   if (config.TYPE_CAPTCHA === "2captcha") {
     return await solve2Captcha(params);
   } else if (config.TYPE_CAPTCHA === "anticaptcha") {
     return await solveAntiCaptcha(params);
   } else if (config.TYPE_CAPTCHA === "monstercaptcha") {
-    return await solveMonsterCaptcha(params);
+    return await solveMonsterCaptcha(params, proxyData);
   }
   console.log(colors.red("Invalid type captcha"));
   return null;
