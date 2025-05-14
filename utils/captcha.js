@@ -11,7 +11,7 @@ const solve2Captcha = async (params) => {
       {
         clientKey: config.API_KEY_2CAPTCHA,
         task: {
-          type: "RecaptchaV2TaskProxyless",
+          type: "TurnstileTaskProxyless",
           websiteURL: params.websiteURL,
           websiteKey: params.websiteKey,
         },
@@ -50,7 +50,7 @@ const solve2Captcha = async (params) => {
     // Step 3: Use the CAPTCHA solution
     if (result.status === "ready") {
       console.log(colors.green("CAPTCHA success.."));
-      return result.solution.gRecaptchaResponse; // This is the CAPTCHA token
+      return result.solution.token; // This is the CAPTCHA token
     } else {
       console.error("Error captcha:", result);
       return null;
@@ -70,7 +70,7 @@ const solveAntiCaptcha = async (params) => {
       {
         clientKey: config.API_KEY_ANTI_CAPTCHA,
         task: {
-          type: "RecaptchaV2TaskProxyless",
+          type: "TurnstileTaskProxyless",
           websiteURL: params.websiteURL,
           websiteKey: params.websiteKey,
         },
@@ -111,7 +111,7 @@ const solveAntiCaptcha = async (params) => {
     // Step 3: Use the CAPTCHA solution
     if (result.status === "ready") {
       console.log(colors.green("CAPTCHA success.."));
-      return result.solution.gRecaptchaResponse; // This is the CAPTCHA token
+      return result.solution.token; // This is the CAPTCHA token
     } else {
       console.error("Error captcha:", result);
       return null;
@@ -131,15 +131,15 @@ const solveMonsterCaptcha = async (params, proxyData) => {
       {
         clientKey: config.API_KEY_CAPMONSTER,
         task: {
-          type: "RecaptchaV2Task",
+          type: "TurnstileTaskProxyless",
           websiteURL: params.websiteURL,
           websiteKey: params.websiteKey,
-          proxyType: proxyData.protocol,
-          proxyAddress: proxyData.ip,
-          proxyPort: proxyData.port,
-          proxyLogin: proxyData.username,
-          proxyPassword: proxyData.password,
-          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+          // proxyType: proxyData.protocol,
+          // proxyAddress: proxyData.ip,
+          // proxyPort: proxyData.port,
+          // proxyLogin: proxyData.username,
+          // proxyPassword: proxyData.password,
+          // userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
         },
       },
       {
@@ -178,7 +178,7 @@ const solveMonsterCaptcha = async (params, proxyData) => {
     // Step 3: Use the CAPTCHA solution
     if (result.status === "ready") {
       console.log(colors.green("CAPTCHA success.."));
-      return result.solution.gRecaptchaResponse; // This is the CAPTCHA token
+      return result.solution.token; // This is the CAPTCHA token
     } else {
       console.error("Error captcha:", result);
       return null;

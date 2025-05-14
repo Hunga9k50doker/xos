@@ -292,8 +292,7 @@ class ClientAPI {
       "post",
       {
         address: this.itemData.address,
-        token: "",
-        v2Token: captchaToken,
+        turnstileToken: captchaToken,
         chain: "XOS",
         couponId: "",
       },
